@@ -1,2 +1,6 @@
 python-dotenv
 langchain-text-splitters
+faiss-cpu
+sentence-transformers
+langchain-community
+langchain-huggingface
