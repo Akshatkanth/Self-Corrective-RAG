@@ -1,5 +1,9 @@
 import os
+import warnings
 from dotenv import load_dotenv
+
+# Suppress LangChain's Pydantic V1 warning
+warnings.filterwarnings("ignore", category=UserWarning, message=".*Core Pydantic V1 functionality.*")
 
 # Load environment variables from .env file
 load_dotenv()
