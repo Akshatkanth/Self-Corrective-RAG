@@ -10,6 +10,7 @@ from corrective_rag.ingest import Chunk
 from corrective_rag.grader import GradeResult, grade_retrieval
 from corrective_rag.rewrite import rewrite_query
 from corrective_rag.vectorstore import load_index, retrieve
+from corrective_rag.generate import generate_answer
 
 # Load index globally so nodes (which are stateless functions) can access it
 project_root = Path(__file__).parent.parent
@@ -65,8 +66,16 @@ def not_found_node(state: GraphState) -> GraphState:
     return {"final_answer": "I couldn't find this in the docs."}
 
 def answer_node(state: GraphState) -> GraphState:
-    print("\n---> [NODE: answer_node] Relevant context found! WOULD ANSWER HERE.")
-    return {"final_answer": "WOULD ANSWER HERE"}
+    print("\n---> [NODE: answer_node] Relevant context found! Generating final answer...")
+    
+    result = generate_answer(state["question"], state["retrieved_chunks"])
+    
+    final_text = f"{result.answer}\n\nSources: {', '.join(result.sources)}"
+    
+    print(f"     [Generated Answer] {result.answer}")
+    print(f"     [Sources Used] {result.sources}")
+    
+    return {"final_answer": final_text}
 
 # 3. Define the Router Edge
 def decide_next_step(state: GraphState) -> str:
@@ -108,6 +117,7 @@ workflow.add_conditional_edges(
 
 workflow.add_edge("answer_node", END)
 workflow.add_edge("not_found_node", END)
+workflow.add_edge("rewrite_node", "retrieve_node")
 
 # Compile into a runnable application
 app = workflow.compile()
