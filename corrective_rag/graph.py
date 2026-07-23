@@ -63,7 +63,10 @@ def rewrite_node(state: GraphState) -> GraphState:
 
 def not_found_node(state: GraphState) -> GraphState:
     print("\n---> [NODE: not_found_node] Exhausted all retries. Giving up.")
-    return {"final_answer": "I couldn't find this in the docs."}
+    msg = (f"I couldn't find information about '{state['question']}' in the available docs. "
+           f"I tried rephrasing the search (last attempt: '{state['current_query']}') "
+           f"but didn't find a good match. This may not be covered in the current documentation.")
+    return {"final_answer": msg}
 
 def answer_node(state: GraphState) -> GraphState:
     print("\n---> [NODE: answer_node] Relevant context found! Generating final answer...")
